@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
 import org.springframework.test.util.ReflectionTestUtils;
 import project.airbnb.clone.entity.member.Member;
+import project.airbnb.clone.fixtures.MemberFixture;
 import project.airbnb.clone.model.AuthProviderUser;
 import project.airbnb.clone.model.PrincipalUser;
 
@@ -16,7 +17,7 @@ public class WithTestAuthSecurityContextFactory implements WithSecurityContextFa
 
     @Override
     public SecurityContext createSecurityContext(WithMockMember annotation) {
-        Member member = Member.createForTest();
+        Member member = MemberFixture.create();
         ReflectionTestUtils.setField(member, "id", 1L);
 
         PrincipalUser principalUser = new PrincipalUser(new AuthProviderUser(member, "mock-principal"));

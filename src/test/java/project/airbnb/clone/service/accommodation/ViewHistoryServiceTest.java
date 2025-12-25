@@ -12,6 +12,8 @@ import project.airbnb.clone.entity.area.AreaCode;
 import project.airbnb.clone.entity.member.Member;
 import project.airbnb.clone.entity.area.SigunguCode;
 import project.airbnb.clone.entity.history.ViewHistory;
+import project.airbnb.clone.fixtures.AccommodationFixture;
+import project.airbnb.clone.fixtures.MemberFixture;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,7 +30,7 @@ class ViewHistoryServiceTest extends TestContainerSupport {
 
     @BeforeEach
     void setUp() {
-        member = Member.createForTest();
+        member = MemberFixture.create();
         em.persist(member);
 
         // 지역 코드 생성
@@ -39,7 +41,7 @@ class ViewHistoryServiceTest extends TestContainerSupport {
         em.persist(sigunguCode);
 
         // Accommodation 생성
-        accommodation = Accommodation.forTest("테스트 숙소", sigunguCode, 1.0, 1.1);
+        accommodation = AccommodationFixture.create("테스트 숙소", sigunguCode, 1.0, 1.1);
         em.persist(accommodation);
     }
 

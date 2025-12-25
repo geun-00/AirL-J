@@ -26,6 +26,8 @@ import project.airbnb.clone.entity.area.AreaCode;
 import project.airbnb.clone.entity.area.SigunguCode;
 import project.airbnb.clone.entity.history.ViewHistory;
 import project.airbnb.clone.entity.member.Member;
+import project.airbnb.clone.fixtures.AccommodationFixture;
+import project.airbnb.clone.fixtures.MemberFixture;
 import project.airbnb.clone.service.DateManager;
 
 import java.time.LocalDate;
@@ -60,7 +62,7 @@ class AccommodationServiceTest extends TestContainerSupport {
 
     @BeforeEach
     void setUp() {
-        member = Member.createForTest();
+        member = MemberFixture.create();
         em.persist(member);
 
         seoulArea = AreaCode.create("11", "서울");
@@ -424,7 +426,7 @@ class AccommodationServiceTest extends TestContainerSupport {
     }
 
     private Accommodation createAccommodation(String title, SigunguCode sigunguCode, double mapX, double mapY) {
-        return Accommodation.forTest(title, sigunguCode, mapX, mapY);
+        return AccommodationFixture.create(title, sigunguCode, mapX, mapY);
     }
 
     private void createPriceAndImage(Accommodation acc, Season season, DayType dayType, int price) {

@@ -20,6 +20,8 @@ import project.airbnb.clone.entity.member.Member;
 import project.airbnb.clone.entity.area.SigunguCode;
 import project.airbnb.clone.entity.wishlist.Wishlist;
 import project.airbnb.clone.entity.wishlist.WishlistAccommodation;
+import project.airbnb.clone.fixtures.AccommodationFixture;
+import project.airbnb.clone.fixtures.MemberFixture;
 import project.airbnb.clone.repository.jpa.WishlistAccommodationRepository;
 import project.airbnb.clone.repository.jpa.WishlistRepository;
 
@@ -39,9 +41,8 @@ class WishlistServiceTest extends TestContainerSupport {
 
     @BeforeEach
     void setUp() {
-        Member member = Member.createForTest();
+        member = MemberFixture.create();
         em.persist(member);
-        this.member = member;
     }
 
     @Test
@@ -267,7 +268,7 @@ class WishlistServiceTest extends TestContainerSupport {
         em.persist(areaCode);
         em.persist(sigunguCode);
 
-        Accommodation accommodation = Accommodation.forTest("test-title", sigunguCode, 1.0,1.0);
+        Accommodation accommodation = AccommodationFixture.create("test-title", sigunguCode, 1.0,1.0);
         em.persist(accommodation);
 
         return accommodation;

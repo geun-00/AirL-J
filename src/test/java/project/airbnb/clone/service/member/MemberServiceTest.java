@@ -13,6 +13,7 @@ import project.airbnb.clone.consts.SocialType;
 import project.airbnb.clone.dto.member.DefaultProfileResDto;
 import project.airbnb.clone.dto.member.SignupRequestDto;
 import project.airbnb.clone.entity.member.Member;
+import project.airbnb.clone.fixtures.MemberFixture;
 import project.airbnb.clone.model.ProviderUser;
 import project.airbnb.clone.repository.jpa.MemberRepository;
 
@@ -24,10 +25,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class MemberServiceTest extends TestContainerSupport {
 
-    @Autowired
-    MemberService memberService;
-    @Autowired
-    MemberRepository memberRepository;
+    @Autowired MemberService memberService;
+    @Autowired MemberRepository memberRepository;
     @Autowired PasswordEncoder passwordEncoder;
 
     @BeforeEach
@@ -136,7 +135,7 @@ class MemberServiceTest extends TestContainerSupport {
     }
 
     private Member saveAndGetMember() {
-        return memberRepository.save(Member.createForTest());
+        return memberRepository.save(MemberFixture.create());
     }
 
     private SignupRequestDto createRequestDto() {

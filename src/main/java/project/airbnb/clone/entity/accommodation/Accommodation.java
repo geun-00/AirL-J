@@ -9,7 +9,6 @@ import project.airbnb.clone.entity.BaseEntity;
 import project.airbnb.clone.entity.area.SigunguCode;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Entity
@@ -73,10 +72,6 @@ public class Accommodation extends BaseEntity {
 
     public static Accommodation createEmpty() {
         return new Accommodation();
-    }
-
-    public static Accommodation forTest(String title, SigunguCode sigunguCode, double mapX, double mapY) {
-        return new Accommodation(mapX, mapY, title, "주소", UUID.randomUUID().toString(), LocalDateTime.now().minusDays(3), sigunguCode);
     }
 
     public void updateOrInit(AccommodationProcessorDto dto, SigunguCode sigunguCode) {

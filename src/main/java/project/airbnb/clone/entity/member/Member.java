@@ -9,7 +9,6 @@ import project.airbnb.clone.consts.SocialType;
 import project.airbnb.clone.entity.BaseEntity;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Getter
 @Entity
@@ -64,10 +63,6 @@ public class Member extends BaseEntity {
 
     public static Member createForSocial(String name, String email, String number, LocalDate birthDate, String password, SocialType socialType) {
         return new Member(name, birthDate, number, email, password, socialType, Role.GUEST, false);
-    }
-
-    public static Member createForTest() {
-        return new Member("test-user", null, null, "test@email.com", UUID.randomUUID().toString(), SocialType.NONE, Role.GUEST, false);
     }
 
     private Member(String name, LocalDate birthDate, String number, String email, String password,

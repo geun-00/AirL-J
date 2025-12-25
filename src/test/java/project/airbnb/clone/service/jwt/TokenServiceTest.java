@@ -8,6 +8,7 @@ import project.airbnb.clone.common.exceptions.BusinessException;
 import project.airbnb.clone.common.jwt.JwtProvider;
 import project.airbnb.clone.dto.jwt.TokenResponse;
 import project.airbnb.clone.entity.member.Member;
+import project.airbnb.clone.fixtures.MemberFixture;
 import project.airbnb.clone.repository.dto.redis.RefreshToken;
 import project.airbnb.clone.repository.jpa.MemberRepository;
 import project.airbnb.clone.repository.redis.BlacklistedTokenRepository;
@@ -28,7 +29,7 @@ class TokenServiceTest extends TestContainerSupport {
 
     @BeforeEach
     void setUp() {
-        member = Member.createForTest();
+        member = MemberFixture.create();
         memberRepository.saveAndFlush(member);
     }
 
