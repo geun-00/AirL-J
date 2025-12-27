@@ -118,27 +118,6 @@ public record AccommodationQueryBuilder(JPAQueryFactory queryFactory, DayType da
         );
     }
 
-    /**
-     * 메인 페이지용 groupBy
-     */
-    private Expression<?>[] mainGroupBy() {
-        List<Expression<?>> fields = new ArrayList<>(List.of(
-                accommodation.id,
-                accommodation.title,
-                accommodationImage.imageUrl,
-                areaCode.codeName,
-                areaCode.code
-        ));
-
-        if (hasMember()) {
-            fields.add(wishlist.id);
-            fields.add(wishlist.name);
-        }
-
-        return fields.toArray(new Expression[0]);
-    }
-
-
     // =====================================================
     // 검색 페이지용 쿼리
     // =====================================================
@@ -213,27 +192,22 @@ public record AccommodationQueryBuilder(JPAQueryFactory queryFactory, DayType da
     // 상세 페이지용 쿼리
     // =====================================================
     public Optional<DetailAccommodationQueryDto> fetchDetailAcc(Long accId) {
-        JPAQuery<?> query = withWishlistJoin(buildDetailAccommodationBaseQuery());
+        JPAQuery<?> query = baseQuery();
+
+        if (hasMember()) {
+            query
+                    .leftJoin(wishlist).on(wishlist.member.id.eq(memberId))
+                    .leftJoin(wishlistAccommodation).on(
+                            wishlistAccommodation.wishlist.eq(wishlist)
+                                                          .and(wishlistAccommodation.accommodation.eq(accommodation))
+                    );
+        }
 
         return Optional.ofNullable(
                 query.select(buildDetailProjection(accId))
-                     .where(accommodation.id.eq(accId), wishlistMemberFilter())
+                     .where(accommodation.id.eq(accId))
                      .fetchOne()
         );
-    }
-
-    private BooleanExpression wishlistMemberFilter() {
-        if (!hasMember()) {
-            return null;
-        }
-        return wishlistAccommodation.isNull().or(wishlist.member.id.eq(memberId));
-    }
-
-    /**
-     * 상세 페이지용 베이스쿼리
-     */
-    public JPAQuery<?> buildDetailAccommodationBaseQuery() {
-        return baseQuery();
     }
 
     /**
