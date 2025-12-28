@@ -76,7 +76,6 @@ public class AccommodationService {
                               .build();
     }
 
-    @Transactional
     public DetailAccommodationResDto getDetailAccommodation(Long accId, Long memberId) {
         LocalDate now = LocalDate.now();
         Season season = dateManager.getSeason(now);
