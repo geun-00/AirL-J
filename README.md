@@ -61,13 +61,14 @@
 <div>
   <img src="https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white" />
   <img src="https://img.shields.io/badge/Cloudflare-F38020?style=flat&logo=cloudflare&logoColor=white" />
-  <img src="https://img.shields.io/badge/Cloudtype-black?style=flat&logoColor=white">
   <img src="https://img.shields.io/badge/Terraform-844FBA?style=flat&logo=terraform&logoColor=white">
   <img src="https://img.shields.io/badge/Nginx Proxy Manager-F15833?style=flat&logo=nginxproxymanager&logoColor=white">
   <img src="https://img.shields.io/badge/AWS EC2-F38020?style=flat&logoColor=white" />
   <img src="https://img.shields.io/badge/GitHub Actions-2088FF?style=flat&logo=githubactions&logoColor=white">
   <img src="https://img.shields.io/badge/Grafana-F46800?style=flat&logo=grafana&logoColor=white">
   <img src="https://img.shields.io/badge/Prometheus-E6522C?style=flat&logo=prometheus&logoColor=white">
+  <img src="https://img.shields.io/badge/DNSZi-FDC300?style=flat&logoColor=white">
+  <img src="https://img.shields.io/badge/Gabia-2B2B2B?style=flat&logoColor=white">
 </div>
 
 ### 🧩 ETC
@@ -86,7 +87,7 @@
 
 ### 🗺️ ERD
 
-<img width="2620" height="1382" alt="AirL J (1)" src="https://github.com/user-attachments/assets/b79868ae-5e25-4bc2-a450-1440e9f8c8f9" />
+<img width="2560" height="1382" alt="AirL J" src="https://github.com/user-attachments/assets/1f360b8e-86ec-4db6-8a28-ffd605be4910" />
 
 ### 🌐 인프라
 
