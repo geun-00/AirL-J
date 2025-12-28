@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Slf4j
 @EnableAsync
@@ -24,10 +25,12 @@ public class AsyncConfig implements AsyncConfigurer {
 
         executor.setCorePoolSize(cores);
         executor.setMaxPoolSize(cores);
-        executor.setThreadNamePrefix("async");
-        executor.setQueueCapacity(1_000_000);
+        executor.setThreadNamePrefix("async-");
+        executor.setQueueCapacity(100);
         executor.setAwaitTerminationSeconds(5);
         executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+
         executor.initialize();
         executor.getThreadPoolExecutor().prestartAllCoreThreads();
 

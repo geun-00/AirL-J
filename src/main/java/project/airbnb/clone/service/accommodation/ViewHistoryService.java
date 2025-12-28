@@ -2,6 +2,8 @@ package project.airbnb.clone.service.accommodation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import project.airbnb.clone.common.exceptions.factory.AccommodationExceptions;
+import project.airbnb.clone.common.exceptions.factory.MemberExceptions;
 import project.airbnb.clone.entity.accommodation.Accommodation;
 import project.airbnb.clone.entity.member.Member;
 import project.airbnb.clone.entity.history.ViewHistory;
@@ -23,8 +25,10 @@ public class ViewHistoryService {
         int updated = viewHistoryRepository.updateViewedAt(accommodationId, memberId, LocalDateTime.now());
 
         if (updated == 0) {
-            Accommodation accommodation = accommodationRepository.getReferenceById(accommodationId);
-            Member member = memberRepository.getReferenceById(memberId);
+            Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                                                                 .orElseThrow(() -> AccommodationExceptions.notFoundById(accommodationId));
+            Member member = memberRepository.findById(memberId)
+                                            .orElseThrow(() -> MemberExceptions.notFoundById(memberId));
 
             viewHistoryRepository.save(ViewHistory.ofNow(accommodation, member));
         }
