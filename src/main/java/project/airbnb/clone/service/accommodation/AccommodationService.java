@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.airbnb.clone.common.events.view.ViewHistoryEvent;
 import project.airbnb.clone.common.exceptions.factory.AccommodationExceptions;
 import project.airbnb.clone.consts.DayType;
 import project.airbnb.clone.consts.Season;
@@ -36,6 +35,7 @@ public class AccommodationService {
 
     private final DateManager dateManager;
     private final ApplicationEventPublisher eventPublisher;
+    private final ViewHistoryService viewHistoryService;
     private final AccommodationQueryRepository accommodationQueryRepository;
 
     public List<MainAccResDto> getAccommodations(Long memberId) {
@@ -88,7 +88,8 @@ public class AccommodationService {
         List<DetailReviewDto> reviews = accommodationQueryRepository.findReviews(accId);
 
         if (memberId != null) {
-            eventPublisher.publishEvent(new ViewHistoryEvent(accId, memberId));
+            viewHistoryService.saveRecentView(accId, memberId);
+//            eventPublisher.publishEvent(new ViewHistoryEvent(accId, memberId));
         }
 
         String thumbnail = images.stream()
