@@ -37,6 +37,24 @@ public class AsyncConfig implements AsyncConfigurer {
         return executor;
     }
 
+    @Bean(name = "viewHistoryExecutor")
+    public Executor viewHistoryExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+
+        int cores = Runtime.getRuntime().availableProcessors();
+
+        executor.setCorePoolSize(cores);
+        executor.setMaxPoolSize(cores * 2);
+        executor.setQueueCapacity(50);
+        executor.setThreadNamePrefix("view-history-");
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+
+        executor.initialize();
+        executor.getThreadPoolExecutor().prestartAllCoreThreads();
+
+        return executor;
+    }
+
     @Override
     public Executor getAsyncExecutor() {
         return executor();

@@ -2,6 +2,7 @@ package project.airbnb.clone.service.accommodation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import project.airbnb.clone.common.exceptions.factory.AccommodationExceptions;
 import project.airbnb.clone.common.exceptions.factory.MemberExceptions;
 import project.airbnb.clone.entity.accommodation.Accommodation;
@@ -21,6 +22,7 @@ public class ViewHistoryService {
     private final ViewHistoryRepository viewHistoryRepository;
     private final AccommodationRepository accommodationRepository;
 
+    @Transactional
     public void saveRecentView(Long accommodationId, Long memberId) {
         int updated = viewHistoryRepository.updateViewedAt(accommodationId, memberId, LocalDateTime.now());
 
