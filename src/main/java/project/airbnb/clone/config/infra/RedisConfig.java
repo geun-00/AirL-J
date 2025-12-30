@@ -57,6 +57,7 @@ public class RedisConfig {
                                                                                   RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper))
                                                                           );
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
+        cacheConfigurations.put("accCommonInfo", redisCacheConfig.entryTtl(Duration.ofMinutes(30)));
 
         return RedisCacheManager.builder(redisConnectionFactory)
                                 .cacheDefaults(redisCacheConfig)
