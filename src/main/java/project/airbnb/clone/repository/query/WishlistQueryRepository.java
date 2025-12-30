@@ -11,8 +11,10 @@ import project.airbnb.clone.repository.dto.WishlistDetailQueryDto;
 import project.airbnb.clone.repository.query.support.CustomQuerydslRepositorySupport;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.querydsl.core.types.Projections.constructor;
+import static project.airbnb.clone.dto.accommodation.DetailAccommodationResDto.WishlistInfo;
 import static project.airbnb.clone.entity.accommodation.QAccommodation.accommodation;
 import static project.airbnb.clone.entity.accommodation.QAccommodationImage.accommodationImage;
 import static project.airbnb.clone.entity.member.QMember.member;
@@ -97,5 +99,22 @@ public class WishlistQueryRepository extends CustomQuerydslRepositorySupport {
                 .where(member.id.eq(memberId))
                 .groupBy(wishlist.id, wishlist.name, accommodationImage.imageUrl)
                 .fetch();
+    }
+
+    public Optional<WishlistInfo> getWishlistInfo(Long accId, Long memberId) {
+        return Optional.ofNullable(
+                select(constructor(
+                        WishlistInfo.class,
+                        wishlistAccommodation.isNotNull(),
+                        wishlist.id,
+                        wishlist.name))
+                        .from(wishlist)
+                        .leftJoin(wishlistAccommodation).on(
+                                wishlistAccommodation.wishlist.eq(wishlist),
+                                wishlistAccommodation.accommodation.id.eq(accId)
+                        )
+                        .where(wishlist.member.id.eq(memberId))
+                        .fetchOne()
+        );
     }
 }

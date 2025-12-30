@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import project.airbnb.clone.consts.DayType;
 import project.airbnb.clone.consts.Season;
 import project.airbnb.clone.dto.accommodation.AccSearchCondDto;
-import project.airbnb.clone.dto.accommodation.DetailAccommodationResDto.DetailReviewDto;
+import project.airbnb.clone.dto.accommodation.AccommodationCommonInfo.DetailReviewDto;
 import project.airbnb.clone.dto.accommodation.FilteredAccListResDto;
 import project.airbnb.clone.dto.accommodation.ViewHistoryDto;
 import project.airbnb.clone.entity.accommodation.Accommodation;

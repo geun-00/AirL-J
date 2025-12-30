@@ -256,7 +256,7 @@ class AccommodationServiceTest extends TestContainerSupport {
             assertThat(result.accommodationId()).isEqualTo(acc.getId());
             assertThat(result.title()).isEqualTo("럭셔리 숙소");
             assertThat(result.price()).isEqualTo(200000);
-            assertThat(result.images().thumbnail()).isNotNull();
+            assertThat(result.images().getThumbnail()).isNotNull();
 
             // ViewHistoryEvent 발행 확인
             long eventCount = applicationEvents.stream(ViewHistoryEvent.class).count();

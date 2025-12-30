@@ -1,9 +1,11 @@
 package project.airbnb.clone.dto.accommodation;
 
+import project.airbnb.clone.dto.accommodation.AccommodationCommonInfo.DetailReviewDto;
 import project.airbnb.clone.repository.dto.DetailAccommodationQueryDto;
 
-import java.time.LocalDateTime;
 import java.util.List;
+
+import static project.airbnb.clone.dto.accommodation.AccommodationCommonInfo.*;
 
 public record DetailAccommodationResDto(
         Long accommodationId,
@@ -27,19 +29,14 @@ public record DetailAccommodationResDto(
         List<String> amenities,
         List<DetailReviewDto> reviews) {
 
-    public record DetailImageDto(
-            String thumbnail,
-            List<String> others) {
-    }
-
-    public record DetailReviewDto(
-            Long memberId,
-            String memberName,
-            String profileUrl,
-            LocalDateTime memberCreatedDate,
-            LocalDateTime reviewCreatedDate,
-            double rating,
-            String content) {
+    public record WishlistInfo(
+            boolean isInWishlist,
+            Long wishlistId,
+            String wishlistName
+    ) {
+        public static WishlistInfo empty() {
+            return new WishlistInfo(false, null, null);
+        }
     }
 
     public static DetailAccommodationResDto from(DetailAccommodationQueryDto queryDto,
@@ -66,6 +63,30 @@ public record DetailAccommodationResDto(
                 imageDto,
                 amenities,
                 reviewDtos
+        );
+    }
+
+    public static DetailAccommodationResDto from(AccommodationCommonInfo commonInfo, WishlistInfo wishlistInfo) {
+        return new DetailAccommodationResDto(
+                commonInfo.getAccommodationId(),
+                commonInfo.getTitle(),
+                commonInfo.getMaxPeople(),
+                commonInfo.getAddress(),
+                commonInfo.getMapX(),
+                commonInfo.getMapY(),
+                commonInfo.getCheckIn(),
+                commonInfo.getCheckOut(),
+                commonInfo.getDescription(),
+                commonInfo.getNumber(),
+                commonInfo.getRefundRegulation(),
+                commonInfo.getPrice(),
+                wishlistInfo.isInWishlist(),
+                wishlistInfo.wishlistId(),
+                wishlistInfo.wishlistName(),
+                commonInfo.getAvgRate(),
+                commonInfo.getImages(),
+                commonInfo.getAmenities(),
+                commonInfo.getReview()
         );
     }
 }

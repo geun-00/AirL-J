@@ -7,17 +7,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.airbnb.clone.common.events.view.ViewHistoryEvent;
-import project.airbnb.clone.common.exceptions.factory.AccommodationExceptions;
 import project.airbnb.clone.consts.DayType;
 import project.airbnb.clone.consts.Season;
 import project.airbnb.clone.dto.PageResponseDto;
 import project.airbnb.clone.dto.accommodation.*;
-import project.airbnb.clone.dto.accommodation.DetailAccommodationResDto.DetailImageDto;
-import project.airbnb.clone.dto.accommodation.DetailAccommodationResDto.DetailReviewDto;
-import project.airbnb.clone.repository.dto.DetailAccommodationQueryDto;
-import project.airbnb.clone.repository.dto.ImageDataQueryDto;
 import project.airbnb.clone.repository.dto.MainAccListQueryDto;
 import project.airbnb.clone.repository.query.AccommodationQueryRepository;
+import project.airbnb.clone.repository.query.WishlistQueryRepository;
+import project.airbnb.clone.service.CacheService;
 import project.airbnb.clone.service.DateManager;
 
 import java.time.LocalDate;
@@ -28,6 +25,7 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
+import static project.airbnb.clone.dto.accommodation.DetailAccommodationResDto.WishlistInfo;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +33,9 @@ import static java.util.stream.Collectors.toList;
 public class AccommodationService {
 
     private final DateManager dateManager;
+    private final CacheService cacheService;
     private final ApplicationEventPublisher eventPublisher;
-    private final ViewHistoryService viewHistoryService;
+    private final WishlistQueryRepository wishlistQueryRepository;
     private final AccommodationQueryRepository accommodationQueryRepository;
 
     public List<MainAccResDto> getAccommodations(Long memberId) {
@@ -78,32 +77,17 @@ public class AccommodationService {
     }
 
     public DetailAccommodationResDto getDetailAccommodation(Long accId, Long memberId) {
-        LocalDate now = LocalDate.now();
-        Season season = dateManager.getSeason(now);
-        DayType dayType = dateManager.getDayType(now);
+        AccommodationCommonInfo commonInfo = cacheService.getAccCommonInfo(accId);
 
-        DetailAccommodationQueryDto detailAccQueryDto = accommodationQueryRepository.findAccommodation(accId, memberId, season, dayType)
-                                                                                    .orElseThrow(() -> AccommodationExceptions.notFoundById(accId));
-        List<ImageDataQueryDto> images = accommodationQueryRepository.findImages(accId);
-        List<String> amenities = accommodationQueryRepository.findAmenities(accId);
-        List<DetailReviewDto> reviews = accommodationQueryRepository.findReviews(accId);
+        WishlistInfo wishlistInfo = WishlistInfo.empty();
 
         if (memberId != null) {
             eventPublisher.publishEvent(new ViewHistoryEvent(accId, memberId));
+            wishlistInfo = wishlistQueryRepository.getWishlistInfo(accId, memberId)
+                                                  .orElse(WishlistInfo.empty());
         }
 
-        String thumbnail = images.stream()
-                                 .filter(ImageDataQueryDto::isThumbnail)
-                                 .map(ImageDataQueryDto::imageUrl)
-                                 .findFirst()
-                                 .orElse(null);
-        List<String> others = images.stream()
-                                    .filter(dto -> !dto.isThumbnail())
-                                    .map(ImageDataQueryDto::imageUrl)
-                                    .toList();
-        DetailImageDto detailImageDto = new DetailImageDto(thumbnail, others);
-
-        return DetailAccommodationResDto.from(detailAccQueryDto, detailImageDto, amenities, reviews);
+        return DetailAccommodationResDto.from(commonInfo, wishlistInfo);
     }
 
     public List<ViewHistoryResDto> getRecentViewAccommodations(Long memberId) {

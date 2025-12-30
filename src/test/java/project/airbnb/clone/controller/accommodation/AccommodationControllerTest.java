@@ -8,8 +8,7 @@ import project.airbnb.clone.WithMockMember;
 import project.airbnb.clone.controller.RestDocsTestSupport;
 import project.airbnb.clone.dto.PageResponseDto;
 import project.airbnb.clone.dto.accommodation.*;
-import project.airbnb.clone.dto.accommodation.DetailAccommodationResDto.DetailImageDto;
-import project.airbnb.clone.dto.accommodation.DetailAccommodationResDto.DetailReviewDto;
+import project.airbnb.clone.dto.accommodation.AccommodationCommonInfo.DetailReviewDto;
 import project.airbnb.clone.service.accommodation.AccommodationService;
 
 import java.time.LocalDate;
@@ -36,6 +35,7 @@ import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static project.airbnb.clone.dto.accommodation.AccommodationCommonInfo.*;
 
 @WebMvcTest(AccommodationController.class)
 class AccommodationControllerTest extends RestDocsTestSupport {
@@ -286,8 +286,8 @@ class AccommodationControllerTest extends RestDocsTestSupport {
                        jsonPath("$.isInWishlist").value(response.isInWishlist()),
                        jsonPath("$.wishlistId").value(response.wishlistId()),
                        jsonPath("$.avgRate").value(response.avgRate()),
-                       jsonPath("$.images.thumbnail").value(detailImageDto.thumbnail()),
-                       jsonPath("$.images.others.length()").value(detailImageDto.others().size()),
+                       jsonPath("$.images.thumbnail").value(detailImageDto.getThumbnail()),
+                       jsonPath("$.images.others.length()").value(detailImageDto.getOthers().size()),
                        jsonPath("$.amenities.length()").value(amenities.size()),
                        jsonPath("$.reviews.length()").value(reviewDtos.size())
                )
