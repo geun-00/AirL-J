@@ -17,9 +17,11 @@ import project.airbnb.clone.entity.member.Member;
 import project.airbnb.clone.entity.reservation.Payment;
 import project.airbnb.clone.entity.reservation.Reservation;
 import project.airbnb.clone.repository.dto.redis.TempPayment;
+import project.airbnb.clone.repository.jpa.AccommodationRepository;
 import project.airbnb.clone.repository.jpa.MemberRepository;
 import project.airbnb.clone.repository.jpa.PaymentRepository;
 import project.airbnb.clone.repository.jpa.ReservationRepository;
+import project.airbnb.clone.repository.query.ReservationQueryRepository;
 import project.airbnb.clone.repository.redis.TempPaymentRepository;
 
 @Slf4j
@@ -33,6 +35,8 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final ReservationRepository reservationRepository;
     private final TempPaymentRepository tempPaymentRepository;
+    private final AccommodationRepository accommodationRepository;
+    private final ReservationQueryRepository reservationQueryRepository;
 
     @Transactional
     public PaymentResDto confirmPayment(PaymentConfirmReqDto paymentConfirmReqDto, Long memberId) {
@@ -42,13 +46,23 @@ public class PaymentService {
 
         verifyTempPayment(orderId, amount);
 
+        Reservation reservation = reservationRepository.findByIdWithPessimisticLock(reservationId)
+                                                       .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        accommodationRepository.findByIdWithPessimisticLock(reservation.getAccommodation().getId())
+                               .orElseThrow();
+
+        if (reservationQueryRepository.existsConfirmedReservation(
+                reservation.getAccommodation(),
+                reservation.getStartDate(),
+                reservation.getEndDate())) {
+            throw new BusinessException(ErrorCode.ALREADY_RESERVED);
+        }
+
         PaymentConfirmDto paymentConfirmDTO = paymentConfirmReqDto.convert();
         JsonNode response = paymentClient.confirmPayment(paymentConfirmDTO);
 
         Member member = memberRepository.findById(memberId)
                                         .orElseThrow(() -> MemberExceptions.notFoundById(memberId));
-        Reservation reservation = reservationRepository.findById(reservationId)
-                                                       .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
 
         if (!reservation.getMember().getId().equals(member.getId())) {
             throw new BusinessException(ErrorCode.ACCESS_DENIED);
