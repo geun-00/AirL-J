@@ -8,17 +8,16 @@ import org.springframework.transaction.annotation.Transactional;
 import project.airbnb.clone.common.clients.PaymentClient;
 import project.airbnb.clone.common.exceptions.BusinessException;
 import project.airbnb.clone.common.exceptions.ErrorCode;
-import project.airbnb.clone.common.exceptions.factory.MemberExceptions;
+import project.airbnb.clone.common.exceptions.factory.AccommodationExceptions;
 import project.airbnb.clone.dto.payment.PaymentConfirmDto;
 import project.airbnb.clone.dto.payment.PaymentConfirmReqDto;
 import project.airbnb.clone.dto.payment.PaymentResDto;
 import project.airbnb.clone.dto.payment.SavePaymentReqDto;
-import project.airbnb.clone.entity.member.Member;
+import project.airbnb.clone.entity.accommodation.Accommodation;
 import project.airbnb.clone.entity.reservation.Payment;
 import project.airbnb.clone.entity.reservation.Reservation;
 import project.airbnb.clone.repository.dto.redis.TempPayment;
 import project.airbnb.clone.repository.jpa.AccommodationRepository;
-import project.airbnb.clone.repository.jpa.MemberRepository;
 import project.airbnb.clone.repository.jpa.PaymentRepository;
 import project.airbnb.clone.repository.jpa.ReservationRepository;
 import project.airbnb.clone.repository.query.ReservationQueryRepository;
@@ -31,7 +30,6 @@ import project.airbnb.clone.repository.redis.TempPaymentRepository;
 public class PaymentService {
 
     private final PaymentClient paymentClient;
-    private final MemberRepository memberRepository;
     private final PaymentRepository paymentRepository;
     private final ReservationRepository reservationRepository;
     private final TempPaymentRepository tempPaymentRepository;
@@ -46,13 +44,15 @@ public class PaymentService {
 
         verifyTempPayment(orderId, amount);
 
-        Reservation reservation = reservationRepository.findByIdWithPessimisticLock(reservationId)
-                                                       .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
-        accommodationRepository.findByIdWithPessimisticLock(reservation.getAccommodation().getId())
-                               .orElseThrow();
+        Reservation reservation = reservationRepository.findByIdWithPessimisticLock(reservationId).orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        Accommodation accommodation = accommodationRepository.findByIdWithPessimisticLock(reservation.getAccommodation().getId())
+                                                             .orElseThrow(() -> AccommodationExceptions.notFoundById(reservation.getAccommodation().getId()));
+        if (!reservation.isOwner(memberId)) {
+            throw new BusinessException(ErrorCode.ACCESS_DENIED);
+        }
 
         if (reservationQueryRepository.existsConfirmedReservation(
-                reservation.getAccommodation(),
+                accommodation.getId(),
                 reservation.getStartDate(),
                 reservation.getEndDate())) {
             throw new BusinessException(ErrorCode.ALREADY_RESERVED);
@@ -60,13 +60,6 @@ public class PaymentService {
 
         PaymentConfirmDto paymentConfirmDTO = paymentConfirmReqDto.convert();
         JsonNode response = paymentClient.confirmPayment(paymentConfirmDTO);
-
-        Member member = memberRepository.findById(memberId)
-                                        .orElseThrow(() -> MemberExceptions.notFoundById(memberId));
-
-        if (!reservation.getMember().getId().equals(member.getId())) {
-            throw new BusinessException(ErrorCode.ACCESS_DENIED);
-        }
 
         paymentRepository.save(Payment.of(response, reservation));
         tempPaymentRepository.deleteById(orderId);
@@ -76,13 +69,6 @@ public class PaymentService {
         return new PaymentResDto(receiptUrl);
     }
 
-    public void savePayment(SavePaymentReqDto savePaymentRequestDTO) {
-        String orderId = savePaymentRequestDTO.orderId();
-        Integer amount = savePaymentRequestDTO.amount();
-
-        tempPaymentRepository.save(TempPayment.builder().orderId(orderId).amount(amount).build());
-    }
-
     private void verifyTempPayment(String orderId, Integer amount) {
         TempPayment tempPayment = tempPaymentRepository.findById(orderId)
                                                        .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
@@ -90,5 +76,12 @@ public class PaymentService {
         if (tempPayment.notEqualsAmount(amount)) {
             throw new BusinessException(ErrorCode.NOT_EQUALS_AMOUNT);
         }
+    }
+
+    public void savePayment(SavePaymentReqDto savePaymentRequestDTO) {
+        String orderId = savePaymentRequestDTO.orderId();
+        Integer amount = savePaymentRequestDTO.amount();
+
+        tempPaymentRepository.save(TempPayment.builder().orderId(orderId).amount(amount).build());
     }
 }

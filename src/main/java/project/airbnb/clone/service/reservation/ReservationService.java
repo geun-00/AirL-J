@@ -47,7 +47,7 @@ public class ReservationService {
         LocalDateTime from = reqDto.startDate().atStartOfDay();
         LocalDateTime to = reqDto.endDate().atTime(23, 59, 59);
 
-        if (reservationQueryRepository.existsConfirmedReservation(accommodation, from, to)) {
+        if (reservationQueryRepository.existsConfirmedReservation(accommodation.getId(), from, to)) {
             throw new BusinessException(ErrorCode.ALREADY_RESERVED);
         }
 
