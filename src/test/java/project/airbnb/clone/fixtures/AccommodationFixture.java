@@ -2,6 +2,7 @@ package project.airbnb.clone.fixtures;
 
 import project.airbnb.clone.dto.accommodation.AccommodationProcessorDto;
 import project.airbnb.clone.entity.accommodation.Accommodation;
+import project.airbnb.clone.entity.accommodation.AccommodationImage;
 import project.airbnb.clone.entity.area.SigunguCode;
 
 import java.util.UUID;
@@ -18,5 +19,9 @@ public class AccommodationFixture {
 
         accommodation.updateOrInit(dto, sigunguCode);
         return accommodation;
+    }
+
+    public static AccommodationImage createThumbnail(Accommodation accommodation) {
+        return AccommodationImage.thumbnailOf(accommodation, "https://test-image.com");
     }
 }
