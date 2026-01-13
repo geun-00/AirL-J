@@ -30,12 +30,13 @@ public record DetailAccommodationResDto(
         List<DetailReviewDto> reviews) {
 
     public record WishlistInfo(
+            Long accommodationId,
             boolean isInWishlist,
             Long wishlistId,
             String wishlistName
     ) {
         public static WishlistInfo empty() {
-            return new WishlistInfo(false, null, null);
+            return new WishlistInfo(null, false, null, null);
         }
     }
 

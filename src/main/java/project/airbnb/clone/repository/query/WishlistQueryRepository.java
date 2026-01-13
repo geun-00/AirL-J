@@ -10,8 +10,12 @@ import project.airbnb.clone.repository.dto.AccAllImagesQueryDto;
 import project.airbnb.clone.repository.dto.WishlistDetailQueryDto;
 import project.airbnb.clone.repository.query.support.CustomQuerydslRepositorySupport;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.querydsl.core.types.Projections.constructor;
 import static project.airbnb.clone.dto.accommodation.DetailAccommodationResDto.WishlistInfo;
@@ -105,6 +109,7 @@ public class WishlistQueryRepository extends CustomQuerydslRepositorySupport {
         return Optional.ofNullable(
                 select(constructor(
                         WishlistInfo.class,
+                        wishlistAccommodation.accommodation.id,
                         wishlistAccommodation.isNotNull(),
                         wishlist.id,
                         wishlist.name))
@@ -116,5 +121,31 @@ public class WishlistQueryRepository extends CustomQuerydslRepositorySupport {
                         .where(wishlist.member.id.eq(memberId))
                         .fetchOne()
         );
+    }
+
+    public Map<Long, WishlistInfo> getWishlistInfos(List<Long> accIds, Long memberId) {
+        if (accIds == null || accIds.isEmpty() || memberId == null) {
+            return Collections.emptyMap();
+        }
+
+        List<WishlistInfo> results = select(
+                constructor(WishlistInfo.class,
+                wishlistAccommodation.accommodation.id,
+                wishlistAccommodation.isNotNull(),
+                wishlist.id,
+                wishlist.name))
+                .from(wishlist)
+                .join(wishlistAccommodation).on(wishlistAccommodation.wishlist.eq(wishlist))
+                .where(
+                        wishlist.member.id.eq(memberId),
+                        wishlistAccommodation.accommodation.id.in(accIds)
+                )
+                .fetch();
+
+        return results.stream()
+                      .collect(Collectors.toMap(
+                              WishlistInfo::accommodationId,
+                              Function.identity()
+                      ));
     }
 }

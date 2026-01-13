@@ -1,7 +1,6 @@
 package project.airbnb.clone.common.events.view;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -13,9 +12,8 @@ public class RecentViewListener {
 
     private final ViewHistoryService viewHistoryService;
 
-    @Async("viewHistoryExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleRecentViewEvent(ViewHistoryEvent event) {
-        viewHistoryService.saveRecentView(event.accommodationId(), event.memberId());
+        viewHistoryService.addHistory(event.memberId(), event.accommodationId());
     }
 }

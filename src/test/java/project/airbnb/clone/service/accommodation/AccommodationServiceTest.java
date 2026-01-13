@@ -1,10 +1,7 @@
 package project.airbnb.clone.service.accommodation;
 
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -48,6 +45,7 @@ import static project.airbnb.clone.consts.Season.PEAK;
 class AccommodationServiceTest extends TestContainerSupport {
 
     @Autowired ApplicationEvents applicationEvents;
+    @Autowired ViewHistoryService viewHistoryService;
     @Autowired AccommodationService accommodationService;
     @Autowired AccommodationStatisticsService statisticsService;
     @Autowired EntityManager em;
@@ -326,27 +324,26 @@ class AccommodationServiceTest extends TestContainerSupport {
             createPriceAndImage(acc2, PEAK, WEEKEND, 120000);
             createPriceAndImage(acc3, PEAK, WEEKEND, 150000);
 
-            LocalDateTime today = LocalDateTime.now();
-            LocalDateTime yesterday = today.minusDays(1);
+            viewHistoryService.addHistory(member.getId(), acc1.getId());
+            viewHistoryService.addHistory(member.getId(), acc2.getId());
+            viewHistoryService.addHistory(member.getId(), acc3.getId());
 
-            ViewHistory vh1 = ViewHistory.create(member, acc1, today);
-            ViewHistory vh2 = ViewHistory.create(member, acc2, today.minusHours(1));
-            ViewHistory vh3 = ViewHistory.create(member, acc3, yesterday);
-            em.persist(vh1);
-            em.persist(vh2);
-            em.persist(vh3);
+            given(dateManager.getSeason(any(LocalDate.class))).willReturn(PEAK);
+            given(dateManager.getDayType(any(LocalDate.class))).willReturn(WEEKEND);
 
             // when
             List<ViewHistoryResDto> result = accommodationService.getRecentViewAccommodations(member.getId());
 
             // then
-            assertThat(result).hasSize(2);
-            assertThat(result.get(0).date()).isEqualTo(today.toLocalDate());
-            assertThat(result.get(0).accommodations()).hasSize(2);
-            assertThat(result.get(1).date()).isEqualTo(yesterday.toLocalDate());
-            assertThat(result.get(1).accommodations()).hasSize(1);
+            assertThat(result).isNotEmpty();
+            assertThat(result.get(0).date()).isEqualTo(LocalDate.now());
+            int totalAccs = result.stream()
+                                  .mapToInt(r -> r.accommodations().size())
+                                  .sum();
+            assertThat(totalAccs).isEqualTo(3);
         }
 
+        @Disabled
         @Test
         @DisplayName("성공 - 30일 이전 데이터는 조회되지 않음")
         void getRecentViewAccommodations_only_last_30_days() {

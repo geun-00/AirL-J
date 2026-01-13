@@ -18,8 +18,8 @@ import project.airbnb.clone.service.CacheService;
 import project.airbnb.clone.service.DateManager;
 
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -34,6 +34,7 @@ public class AccommodationService {
 
     private final DateManager dateManager;
     private final CacheService cacheService;
+    private final ViewHistoryService viewHistoryService;
     private final ApplicationEventPublisher eventPublisher;
     private final WishlistQueryRepository wishlistQueryRepository;
     private final AccommodationQueryRepository accommodationQueryRepository;
@@ -91,17 +92,42 @@ public class AccommodationService {
     }
 
     public List<ViewHistoryResDto> getRecentViewAccommodations(Long memberId) {
-        return accommodationQueryRepository.findViewHistories(memberId)
-                                           .stream()
-                                           .collect(Collectors.groupingBy(
-                                                   dto -> dto.viewDate().toLocalDate(),
-                                                   LinkedHashMap::new,
-                                                   Collectors.toList()
-                                           ))
-                                           .entrySet()
-                                           .stream()
-                                           .map(e -> new ViewHistoryResDto(e.getKey(), e.getValue()))
-                                           .toList();
+        Map<Long, LocalDateTime> viewInfoMap = viewHistoryService.getRecentViewIdsWithTime(memberId);
+        if (viewInfoMap.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Long> accIds = viewInfoMap.keySet().stream().toList();
+        Map<Long, WishlistInfo> wishlistMap = wishlistQueryRepository.getWishlistInfos(accIds, memberId);
+
+        List<ViewHistoryDto> historyDtos = accIds.stream()
+                                                 .map(id -> {
+                                                     AccommodationCommonInfo commonInfo = cacheService.getAccCommonInfo(id);
+                                                     WishlistInfo wishInfo = wishlistMap.getOrDefault(id, WishlistInfo.empty());
+
+                                                     return ViewHistoryDto.builder()
+                                                                          .accommodationId(id)
+                                                                          .viewDate(viewInfoMap.get(id))
+                                                                          .title(commonInfo.getTitle())
+                                                                          .avgRate(commonInfo.getAvgRate())
+                                                                          .thumbnailUrl(commonInfo.getImages().getThumbnail())
+                                                                          .isInWishlist(wishInfo.isInWishlist())
+                                                                          .wishlistId(wishInfo.wishlistId())
+                                                                          .wishlistName(wishInfo.wishlistName())
+                                                                          .build();
+                                                 })
+                                                 .toList();
+
+        return historyDtos.stream()
+                          .collect(Collectors.groupingBy(
+                                  dto -> dto.viewDate().toLocalDate(),
+                                  LinkedHashMap::new,
+                                  Collectors.toList()
+                          ))
+                          .entrySet()
+                          .stream()
+                          .map(e -> new ViewHistoryResDto(e.getKey(), e.getValue()))
+                          .toList();
     }
 
     public AccommodationPriceResDto getAccommodationPrice(Long accId, LocalDate date) {
