@@ -5,6 +5,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.impl.JPAQuery;
 import org.springframework.stereotype.Repository;
 import project.airbnb.clone.dto.chat.ChatRoomResDto;
 import project.airbnb.clone.entity.member.QMember;
@@ -36,26 +37,7 @@ public class ChatRoomQueryRepository extends CustomQuerydslRepositorySupport {
         BooleanExpression otherUserCond = CP2.chatRoom.eq(chatRoom).and(CP2.member.id.eq(otherMemberId));
 
         return Optional.ofNullable(
-                select(Projections.constructor(
-                        ChatRoomResDto.class,
-                        chatRoom.id,
-                        CP1.customRoomName,
-                        OTHER_MEMBER.id,
-                        OTHER_MEMBER.name,
-                        OTHER_MEMBER.profileUrl,
-                        CP2.isActive,
-                        chatMessage.content,
-                        chatMessage.createdAt,
-                        Expressions.asNumber(0)))
-                        .from(chatRoom)
-                        .join(CP1).on(currentUserCond)
-                        .join(CP2).on(otherUserCond)
-                        .join(CP2.member, OTHER_MEMBER)
-                        .leftJoin(chatMessage).on(chatMessage.id.eq(
-                                JPAExpressions.select(SUB_CM.id.max())
-                                              .from(SUB_CM)
-                                              .where(SUB_CM.chatRoom.eq(chatRoom))
-                        ))
+                getBaseChatRoomQuery(currentUserCond, otherUserCond)
                         .where(chatRoom.eq(targetRoom))
                         .fetchOne()
         );
@@ -70,6 +52,12 @@ public class ChatRoomQueryRepository extends CustomQuerydslRepositorySupport {
         BooleanExpression otherUserCond = CP2.chatRoom.eq(chatRoom)
                                                       .and(CP2.member.id.ne(memberId));
 
+        return getBaseChatRoomQuery(currentUserCond, otherUserCond)
+                .orderBy(chatMessage.createdAt.desc().nullsLast())
+                .fetch();
+    }
+
+    private JPAQuery<ChatRoomResDto> getBaseChatRoomQuery(BooleanExpression currentUserCond, BooleanExpression otherUserCond) {
         return select(Projections.constructor(
                 ChatRoomResDto.class,
                 chatRoom.id,
@@ -89,11 +77,10 @@ public class ChatRoomQueryRepository extends CustomQuerydslRepositorySupport {
                         JPAExpressions.select(SUB_CM.id.max())
                                       .from(SUB_CM)
                                       .where(SUB_CM.chatRoom.eq(chatRoom))
-                ))
-                .orderBy(chatMessage.createdAt.desc().nullsLast())
-                .fetch();
+                ));
     }
 
+    @Deprecated
     private JPQLQuery<Integer> buildUnreadCountSubQuery() {
         return JPAExpressions
                 .select(SUB_CM.count().intValue())

@@ -28,7 +28,7 @@ public interface ChatParticipantRepository extends JpaRepository<ChatParticipant
     @Query("""
         SELECT cp.member.id
         FROM ChatParticipant cp
-        WHERE cp.chatRoom.id = :roomId
+        WHERE cp.chatRoom.id = :roomId AND cp.isActive = true
         """)
     List<Long> getParticipantIdsByRoomId(@Param("roomId") Long roomId);
 }

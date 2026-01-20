@@ -12,4 +12,12 @@ public record ChatRoomResDto(
         String lastMessage,
         LocalDateTime lastMessageTime,
         int unreadCount) {
+
+    public static ChatRoomResDto withUnreadCount(ChatRoomResDto dto, int unreadCount) {
+        return new ChatRoomResDto(
+                dto.roomId(), dto.customRoomName(), dto.memberId(),
+                dto.memberName(), dto.memberProfileImage(), dto.isOtherMemberActive(),
+                dto.lastMessage(), dto.lastMessageTime(), unreadCount
+        );
+    }
 }

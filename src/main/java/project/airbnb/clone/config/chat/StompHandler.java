@@ -9,7 +9,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import project.airbnb.clone.common.jwt.JwtProvider;
-import project.airbnb.clone.service.chat.ChatService;
+import project.airbnb.clone.service.chat.ChatRoomService;
 
 import static org.springframework.messaging.simp.stomp.StompCommand.CONNECT;
 import static org.springframework.messaging.simp.stomp.StompCommand.SEND;
@@ -23,7 +23,7 @@ import static project.airbnb.clone.common.jwt.JwtProperties.TOKEN_PREFIX;
 public class StompHandler implements ChannelInterceptor {
 
     private final JwtProvider jwtProvider;
-    private final ChatService chatService;
+    private final ChatRoomService chatRoomService;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -51,7 +51,7 @@ public class StompHandler implements ChannelInterceptor {
             }
             Long memberId = jwtProvider.getId(token);
 
-            if (!chatService.isChatRoomParticipant(roomId, memberId)) {
+            if (!chatRoomService.isChatRoomParticipant(roomId, memberId)) {
                 return null;
             }
         }
