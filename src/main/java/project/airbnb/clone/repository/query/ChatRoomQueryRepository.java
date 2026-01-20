@@ -2,6 +2,7 @@ package project.airbnb.clone.repository.query;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.stereotype.Repository;
@@ -45,7 +46,7 @@ public class ChatRoomQueryRepository extends CustomQuerydslRepositorySupport {
                         CP2.isActive,
                         chatMessage.content,
                         chatMessage.createdAt,
-                        buildUnreadCountSubQuery()))
+                        Expressions.asNumber(0)))
                         .from(chatRoom)
                         .join(CP1).on(currentUserCond)
                         .join(CP2).on(otherUserCond)
@@ -79,7 +80,7 @@ public class ChatRoomQueryRepository extends CustomQuerydslRepositorySupport {
                 CP2.isActive,
                 chatMessage.content,
                 chatMessage.createdAt,
-                buildUnreadCountSubQuery()))
+                Expressions.asNumber(0)))
                 .from(chatRoom)
                 .join(CP1).on(currentUserCond)
                 .join(CP2).on(otherUserCond)

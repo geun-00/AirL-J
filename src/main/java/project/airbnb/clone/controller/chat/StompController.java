@@ -1,7 +1,6 @@
 package project.airbnb.clone.controller.chat;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
@@ -10,7 +9,9 @@ import project.airbnb.clone.dto.chat.ChatMessageResDto;
 import project.airbnb.clone.service.chat.ChatService;
 import project.airbnb.clone.service.chat.RedisPublisher;
 
-@Slf4j
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Controller
 @RequiredArgsConstructor
 public class StompController {
@@ -20,9 +21,21 @@ public class StompController {
 
     @MessageMapping("/{roomId}")
     public void sendMessage(@DestinationVariable("roomId") Long roomId, ChatMessageReqDto chatMessageDto) {
-        ChatMessageResDto savedChatMessage = chatService.saveChatMessage(roomId, chatMessageDto);
-        
-        // Redis Pub/Sub으로 메시지 발행 (모든 서버 인스턴스가 수신)
-        redisPublisher.publish(savedChatMessage);
+        Long senderId = chatMessageDto.senderId();
+
+        chatService.validateParticipant(roomId, senderId);
+
+        ChatMessageResDto responseDto = ChatMessageResDto.builder()
+                                                         .messageId(UUID.randomUUID().toString())
+                                                         .roomId(roomId)
+                                                         .senderId(senderId)
+                                                         .content(chatMessageDto.content())
+                                                         .timestamp(LocalDateTime.now())
+                                                         .left(false)
+                                                         .build();
+        // Redis Pub/Sub으로 메시지 발행
+        redisPublisher.publish(responseDto);
+
+        chatService.handleMessagePostProcess(responseDto);
     }
 }

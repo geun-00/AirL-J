@@ -65,13 +65,13 @@ public class ChatNotifyService {
 
     public void sendChatLeaveNotification(String name, Long roomId) {
         ChatMessageResDto leaveMessage = ChatMessageResDto.builder()
-                                                          .messageId(-1L)
+                                                          .messageId(null)
                                                           .roomId(roomId)
                                                           .senderId(null)
                                                           .senderName(null)
                                                           .content(name + "님이 대화를 떠났습니다.")
                                                           .timestamp(LocalDateTime.now())
-                                                          .isLeft(true)
+                                                          .left(true)
                                                           .build();
 
         messageTemplate.convertAndSend("/topic/" + roomId, leaveMessage);

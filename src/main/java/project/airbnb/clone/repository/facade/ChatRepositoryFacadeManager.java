@@ -82,4 +82,12 @@ public class ChatRepositoryFacadeManager {
         return chatRoomQueryRepository.findChatRoomInfo(currentMemberId, otherMemberId, chatRoom)
                                       .orElseThrow(() -> ChatExceptions.notFoundChatRoom(currentMemberId, otherMemberId));
     }
+
+    public void saveAllChatMessages(List<ChatMessage> messages) {
+        chatMessageRepository.saveAll(messages);
+    }
+
+    public List<Long> getParticipantIdsByRoomId(Long roomId) {
+        return chatParticipantRepository.getParticipantIdsByRoomId(roomId);
+    }
 }

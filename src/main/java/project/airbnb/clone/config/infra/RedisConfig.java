@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -48,17 +49,10 @@ public class RedisConfig {
 
     @Bean
     public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
-                                                                    .allowIfBaseType(Object.class)
-                                                                    .build();
-        ObjectMapper objectMapper = getObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                .activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL);
-
         RedisCacheConfiguration redisCacheConfig = RedisCacheConfiguration.defaultCacheConfig()
                                                                           .entryTtl(Duration.ofMinutes(10))
                                                                           .serializeValuesWith(
-                                                                                  RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper))
+                                                                                  RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(redisObjMapper()))
                                                                           );
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
         cacheConfigurations.put("accCommonInfo", redisCacheConfig.entryTtl(Duration.ofMinutes(30)));
@@ -74,12 +68,19 @@ public class RedisConfig {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(connectionFactory);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer(getObjectMapper()));
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjMapper()));
         return redisTemplate;
     }
 
-    private ObjectMapper getObjectMapper() {
+    @Bean
+    @Qualifier("redisObjMapper")
+    public ObjectMapper redisObjMapper() {
+        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                                                                    .allowIfBaseType(Object.class)
+                                                                    .build();
         return new ObjectMapper()
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                .activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL)
                 .registerModule(new JavaTimeModule())
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }

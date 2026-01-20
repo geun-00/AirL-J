@@ -24,4 +24,11 @@ public interface ChatParticipantRepository extends JpaRepository<ChatParticipant
     int updateCustomName(@Param("customName") String customName, @Param("chatRoom") ChatRoom chatRoom, @Param("memberId") Long memberId);
 
     Optional<ChatParticipant> findByChatRoomIdAndMemberId(Long chatRoomId, Long memberId);
+
+    @Query("""
+        SELECT cp.member.id
+        FROM ChatParticipant cp
+        WHERE cp.chatRoom.id = :roomId
+        """)
+    List<Long> getParticipantIdsByRoomId(@Param("roomId") Long roomId);
 }
