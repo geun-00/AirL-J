@@ -28,14 +28,6 @@ public class ChatRoomService {
     private final ApplicationEventPublisher eventPublisher;
     private final ChatRepositoryFacadeManager chatRepositoryFacade;
 
-    /**
-     * 채팅방 이름 변경
-     *
-     * @param customName    변경할 이름
-     * @param otherMemberId 상대방
-     * @param myId          자신
-     * @param roomId        채팅방
-     */
     @Transactional
     public ChatRoomResDto updateChatRoomName(String customName, Long otherMemberId, Long myId, Long roomId) {
         ChatRoom chatRoom = chatRepositoryFacade.getChatRoomByRoomId(roomId);
