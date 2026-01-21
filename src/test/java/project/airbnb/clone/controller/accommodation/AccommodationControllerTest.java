@@ -7,8 +7,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import project.airbnb.clone.WithMockMember;
 import project.airbnb.clone.controller.RestDocsTestSupport;
 import project.airbnb.clone.dto.PageResponseDto;
-import project.airbnb.clone.dto.accommodation.*;
 import project.airbnb.clone.dto.accommodation.AccommodationCommonInfo.DetailReviewDto;
+import project.airbnb.clone.dto.accommodation.*;
 import project.airbnb.clone.service.accommodation.AccommodationService;
 
 import java.time.LocalDate;
@@ -35,7 +35,8 @@ import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static project.airbnb.clone.dto.accommodation.AccommodationCommonInfo.*;
+import static project.airbnb.clone.dto.accommodation.AccommodationCommonInfo.DetailImageDto;
+import static project.airbnb.clone.dto.accommodation.DetailAccommodationResDto.*;
 
 @WebMvcTest(AccommodationController.class)
 class AccommodationControllerTest extends RestDocsTestSupport {
@@ -257,9 +258,11 @@ class AccommodationControllerTest extends RestDocsTestSupport {
                 new DetailReviewDto(1L, "member-A", "https://example.com/profile-A.jpg", now, now, 4.5, "review-content-1"),
                 new DetailReviewDto(2L, "member-B", "https://example.com/profile-B.jpg", now, now, 4.7, "review-content-2")
         );
+
+        List<ReservedDateDto> reservedDates = List.of(new ReservedDateDto(now.minusDays(7).toLocalDate(), now.minusDays(5).toLocalDate()));
         DetailAccommodationResDto response = new DetailAccommodationResDto(accommodationId, "acc-title", 5, "경기도 부천시...", 35.3, 40.1,
                 "10:00", "14:00", "acc-overview", "054-855-8552", "7일 이내 100%",
-                55000, true, 1L, "my-wishlist-1", 4.8, detailImageDto, amenities, reviewDtos
+                55000, true, 1L, "my-wishlist-1", 4.8, detailImageDto, amenities, reviewDtos, reservedDates
         );
 
         given(accommodationService.getDetailAccommodation(any(), any())).willReturn(response);
@@ -289,7 +292,8 @@ class AccommodationControllerTest extends RestDocsTestSupport {
                        jsonPath("$.images.thumbnail").value(detailImageDto.getThumbnail()),
                        jsonPath("$.images.others.length()").value(detailImageDto.getOthers().size()),
                        jsonPath("$.amenities.length()").value(amenities.size()),
-                       jsonPath("$.reviews.length()").value(reviewDtos.size())
+                       jsonPath("$.reviews.length()").value(reviewDtos.size()),
+                       jsonPath("$.reservedDates.length()").value(reservedDates.size())
                )
                .andDo(document("get-detail-accommodation",
                        resource(
@@ -386,7 +390,13 @@ class AccommodationControllerTest extends RestDocsTestSupport {
                                                        .description("리뷰 평점"),
                                                fieldWithPath("reviews[].content")
                                                        .type(STRING)
-                                                       .description("리뷰 내용")
+                                                       .description("리뷰 내용"),
+                                               fieldWithPath("reservedDates[].start")
+                                                       .type(STRING)
+                                                       .description("선예약 시작일"),
+                                               fieldWithPath("reservedDates[].end")
+                                                       .type(STRING)
+                                                       .description("선예약 종료일")
                                        )
                                        .responseSchema(schema("DetailAccommodationResponse"))
                                        .build()

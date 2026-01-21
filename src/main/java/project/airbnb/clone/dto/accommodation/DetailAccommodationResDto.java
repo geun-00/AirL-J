@@ -1,11 +1,12 @@
 package project.airbnb.clone.dto.accommodation;
 
 import project.airbnb.clone.dto.accommodation.AccommodationCommonInfo.DetailReviewDto;
-import project.airbnb.clone.repository.dto.DetailAccommodationQueryDto;
+import project.airbnb.clone.repository.dto.ReservedDateQueryDto;
 
+import java.time.LocalDate;
 import java.util.List;
 
-import static project.airbnb.clone.dto.accommodation.AccommodationCommonInfo.*;
+import static project.airbnb.clone.dto.accommodation.AccommodationCommonInfo.DetailImageDto;
 
 public record DetailAccommodationResDto(
         Long accommodationId,
@@ -27,7 +28,9 @@ public record DetailAccommodationResDto(
         double avgRate,
         DetailImageDto images,
         List<String> amenities,
-        List<DetailReviewDto> reviews) {
+        List<DetailReviewDto> reviews,
+        List<ReservedDateDto> reservedDates
+) {
 
     public record WishlistInfo(
             Long accommodationId,
@@ -40,34 +43,9 @@ public record DetailAccommodationResDto(
         }
     }
 
-    public static DetailAccommodationResDto from(DetailAccommodationQueryDto queryDto,
-                                                 DetailImageDto imageDto,
-                                                 List<String> amenities,
-                                                 List<DetailReviewDto> reviewDtos) {
-        return new DetailAccommodationResDto(
-                queryDto.accommodationId(),
-                queryDto.title(),
-                queryDto.maxPeople(),
-                queryDto.address(),
-                queryDto.mapX(),
-                queryDto.mapY(),
-                queryDto.checkIn(),
-                queryDto.checkOut(),
-                queryDto.description(),
-                queryDto.number(),
-                queryDto.refundRegulation(),
-                queryDto.price(),
-                queryDto.isInWishlist(),
-                queryDto.wishlistId(),
-                queryDto.wishlistName(),
-                queryDto.avgRate(),
-                imageDto,
-                amenities,
-                reviewDtos
-        );
-    }
+    public record ReservedDateDto(LocalDate start, LocalDate end) { }
 
-    public static DetailAccommodationResDto from(AccommodationCommonInfo commonInfo, WishlistInfo wishlistInfo) {
+    public static DetailAccommodationResDto from(AccommodationCommonInfo commonInfo, WishlistInfo wishlistInfo, List<ReservedDateQueryDto> reservedDates) {
         return new DetailAccommodationResDto(
                 commonInfo.getAccommodationId(),
                 commonInfo.getTitle(),
@@ -87,7 +65,10 @@ public record DetailAccommodationResDto(
                 commonInfo.getAvgRate(),
                 commonInfo.getImages(),
                 commonInfo.getAmenities(),
-                commonInfo.getReview()
+                commonInfo.getReview(),
+                reservedDates.stream()
+                             .map(date -> new ReservedDateDto(date.startDate().toLocalDate(), date.endDate().toLocalDate()))
+                             .toList()
         );
     }
 }

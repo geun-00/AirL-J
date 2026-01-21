@@ -12,7 +12,9 @@ import project.airbnb.clone.consts.Season;
 import project.airbnb.clone.dto.PageResponseDto;
 import project.airbnb.clone.dto.accommodation.*;
 import project.airbnb.clone.repository.dto.MainAccListQueryDto;
+import project.airbnb.clone.repository.dto.ReservedDateQueryDto;
 import project.airbnb.clone.repository.query.AccommodationQueryRepository;
+import project.airbnb.clone.repository.query.ReservationQueryRepository;
 import project.airbnb.clone.repository.query.WishlistQueryRepository;
 import project.airbnb.clone.service.CacheService;
 import project.airbnb.clone.service.DateManager;
@@ -37,6 +39,7 @@ public class AccommodationService {
     private final ViewHistoryService viewHistoryService;
     private final ApplicationEventPublisher eventPublisher;
     private final WishlistQueryRepository wishlistQueryRepository;
+    private final ReservationQueryRepository reservationQueryRepository;
     private final AccommodationQueryRepository accommodationQueryRepository;
 
     public List<MainAccResDto> getAccommodations(Long memberId) {
@@ -81,6 +84,7 @@ public class AccommodationService {
         AccommodationCommonInfo commonInfo = cacheService.getAccCommonInfo(accId);
 
         WishlistInfo wishlistInfo = WishlistInfo.empty();
+        List<ReservedDateQueryDto> reservedDates = reservationQueryRepository.findReservedDatesByAccommodationId(accId);
 
         if (memberId != null) {
             eventPublisher.publishEvent(new ViewHistoryEvent(accId, memberId));
@@ -88,7 +92,7 @@ public class AccommodationService {
                                                   .orElse(WishlistInfo.empty());
         }
 
-        return DetailAccommodationResDto.from(commonInfo, wishlistInfo);
+        return DetailAccommodationResDto.from(commonInfo, wishlistInfo, reservedDates);
     }
 
     public List<ViewHistoryResDto> getRecentViewAccommodations(Long memberId) {
