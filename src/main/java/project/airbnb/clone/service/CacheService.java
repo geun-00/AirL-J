@@ -1,6 +1,7 @@
 package project.airbnb.clone.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import project.airbnb.clone.common.exceptions.factory.AccommodationExceptions;
@@ -36,4 +37,7 @@ public class CacheService {
 
         return AccommodationCommonInfo.from(detail, amenities, reviews, images);
     }
+
+    @CacheEvict(value = "accCommonInfo")
+    public void evictAccCommonInfo(Long accId) { }
 }

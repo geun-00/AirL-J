@@ -17,6 +17,7 @@ import project.airbnb.clone.entity.reservation.Reservation;
 import project.airbnb.clone.entity.reservation.Review;
 import project.airbnb.clone.repository.jpa.*;
 import project.airbnb.clone.repository.query.ReservationQueryRepository;
+import project.airbnb.clone.service.CacheService;
 
 import java.time.LocalDateTime;
 
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 @Transactional(readOnly = true)
 public class ReservationService {
 
+    private final CacheService cacheService;
     private final MemberRepository memberRepository;
     private final ReviewRepository reviewRepository;
     private final ReservationRepository reservationRepository;
@@ -65,5 +67,6 @@ public class ReservationService {
                                         .orElseThrow(() -> MemberExceptions.notFoundById(memberId));
 
         reviewRepository.save(Review.create(reqDto.rating().doubleValue(), reqDto.content(), reservation, member));
+        cacheService.evictAccCommonInfo(reservation.getAccommodation().getId());
     }
 }
