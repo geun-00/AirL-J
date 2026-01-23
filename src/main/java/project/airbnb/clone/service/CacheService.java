@@ -2,7 +2,6 @@ package project.airbnb.clone.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import project.airbnb.clone.common.exceptions.factory.AccommodationExceptions;
 import project.airbnb.clone.consts.DayType;
@@ -23,7 +22,7 @@ public class CacheService {
     private final DateManager dateManager;
     private final AccommodationQueryRepository accommodationQueryRepository;
 
-    @Cacheable(value = "accCommonInfo")
+//    @Cacheable(value = "accCommonInfo")
     public AccommodationCommonInfo getAccCommonInfo(Long accId) {
         LocalDate now = LocalDate.now();
         Season season = dateManager.getSeason(now);

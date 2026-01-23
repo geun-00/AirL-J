@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import project.airbnb.clone.common.exceptions.factory.AccommodationExceptions;
 import project.airbnb.clone.common.exceptions.factory.MemberExceptions;
@@ -36,7 +37,7 @@ public class ViewHistoryService {
     private static final int MAX_HISTORY_COUNT = 50;
     private static final long EXPIRE_DAYS = 30;
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveRecentView(Long accommodationId, Long memberId) {
         int updated = viewHistoryRepository.updateViewedAt(accommodationId, memberId, LocalDateTime.now());
 

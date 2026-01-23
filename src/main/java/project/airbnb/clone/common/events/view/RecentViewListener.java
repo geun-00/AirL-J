@@ -14,6 +14,7 @@ public class RecentViewListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleRecentViewEvent(ViewHistoryEvent event) {
-        viewHistoryService.addHistory(event.memberId(), event.accommodationId());
+//        viewHistoryService.addHistory(event.memberId(), event.accommodationId());
+        viewHistoryService.saveRecentView(event.accommodationId(), event.memberId());
     }
 }
