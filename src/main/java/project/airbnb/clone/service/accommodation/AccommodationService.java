@@ -80,6 +80,7 @@ public class AccommodationService {
                               .build();
     }
 
+    @Transactional
     public DetailAccommodationResDto getDetailAccommodation(Long accId, Long memberId) {
         AccommodationCommonInfo commonInfo = cacheService.getAccCommonInfo(accId);
 
