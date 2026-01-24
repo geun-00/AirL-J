@@ -38,3 +38,8 @@ gradle.properties
 /src/main/resources/static/swagger-ui/
 /stress-test/
 /infra/
+/diagrams/
+/k6-scripts/
+/compose.yml
+/prometheus.yml
+/gradle/
