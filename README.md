@@ -96,3 +96,31 @@
 ### 🔄 CI/CD
 
 <img width="2642" height="1694" alt="CICD Architecture (4)" src="https://github.com/user-attachments/assets/929a16da-e97b-4b06-a043-e0f65e0bde50" />
+
+### 💼 주요 비즈니스 로직
+
+<details>
+<summary><b>🔐 인증 플로우</b></summary>
+<img width="930" height="2183" alt="image" src="https://github.com/user-attachments/assets/ad5f3442-1d35-4c33-8700-cb3ebf2af977" />
+</details>
+
+<details>
+<summary><b>📅 예약 플로우</b></summary>
+<img width="879" height="1449" alt="image" src="https://github.com/user-attachments/assets/6503d777-c301-431c-8456-4e1e412fed1c" />
+</details>
+
+<details>
+<summary><b>💳 결제 플로우</b></summary>
+<img width="985" height="1890" alt="image" src="https://github.com/user-attachments/assets/9688b31d-ed75-42b2-8e3d-76dd9c4f6af3" />
+</details>
+
+<details>
+<summary><b>💬 채팅 플로우</b></summary>
+  
+#### 채팅 요청 및 응답
+<img width="1120" height="2570" alt="image" src="https://github.com/user-attachments/assets/c9080f62-0e88-4008-8f1e-f49ec4fe2adf" />
+
+#### 실시간 채팅
+<img width="922" height="1840" alt="image" src="https://github.com/user-attachments/assets/2a9887e6-813f-43cb-8276-35ea93b31876" />
+
+</details>
