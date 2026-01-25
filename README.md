@@ -1,15 +1,15 @@
 # 🏡 AirL&J 프로젝트
 
 <div align="center">
-  <img src="readme-images/img.png" width="400">
+  <img src="https://github.com/user-attachments/assets/a5b1f580-65db-4914-b5b2-e3a2a4850d95" width="400">
 
-[![hits](https://myhits.vercel.app/api/hit/https%3A%2F%2Fgithub.com%2FAIRBNB-2M%2FBackend?color=blue&label=hits&size=small)](https://myhits.vercel.app)
+[![hits](https://myhits.vercel.app/api/hit/https%3A%2F%2Fgithub.com%2Fgeun-00%2FAirL-J?color=blue&label=hits&size=small)](https://myhits.vercel.app)
 
 <div>
 </div>
 
 <img src="https://img.shields.io/badge/프로젝트 기간-2025.07~2025.12-green?style=flat&logo=&logoColor=white" />
-<img src="https://img.shields.io/badge/마지막 리드미 수정-2025.12.20-gold?style=flat&logo=&logoColor=white" />
+<img src="https://img.shields.io/badge/마지막 리드미 수정-2026.01.25-gold?style=flat&logo=&logoColor=white" />
 
 <div>
 </div>
