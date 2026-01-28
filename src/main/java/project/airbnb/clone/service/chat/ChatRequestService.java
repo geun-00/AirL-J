@@ -134,7 +134,7 @@ public class ChatRequestService {
         }
 
         chatRequestRepository.delete(chatRequest);
-        eventPublisher.publishEvent(new ChatRequestRejectedEvent(requestId, chatRequest.getSenderId()));
+        eventPublisher.publishEvent(new ChatRequestRejectedEvent(requestId, chatRequest.getSenderId(), chatRequest.getReceiverName()));
     }
 
     /**

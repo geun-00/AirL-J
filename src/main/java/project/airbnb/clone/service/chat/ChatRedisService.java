@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 import project.airbnb.clone.dto.chat.ChatMessageResDto;
+import project.airbnb.clone.service.common.RedisMessagePublisher;
 
 import java.util.List;
 import java.util.Set;
@@ -15,17 +17,20 @@ import static project.airbnb.clone.service.chat.ChatRedisKey.*;
 @Service
 public class ChatRedisService {
 
+    private final ChannelTopic chatTopic;
     private final ObjectMapper objectMapper;
-    private final RedisPublisher redisPublisher;
     private final StringRedisTemplate strRedisTemplate;
+    private final RedisMessagePublisher redisMessagePublisher;
     private final RedisTemplate<String, Object> redisTemplate;
 
     public ChatRedisService(@Qualifier("redisObjMapper") ObjectMapper objectMapper,
-                            RedisPublisher redisPublisher,
+                            RedisMessagePublisher redisMessagePublisher,
+                            ChannelTopic chatTopic,
                             StringRedisTemplate strRedisTemplate,
                             RedisTemplate<String, Object> redisTemplate) {
         this.objectMapper = objectMapper;
-        this.redisPublisher = redisPublisher;
+        this.redisMessagePublisher = redisMessagePublisher;
+        this.chatTopic = chatTopic;
         this.strRedisTemplate = strRedisTemplate;
         this.redisTemplate = redisTemplate;
     }
@@ -53,7 +58,7 @@ public class ChatRedisService {
     }
 
     protected void publish(ChatMessageResDto responseDto) {
-        redisPublisher.publish(responseDto);
+        redisMessagePublisher.publish(chatTopic.getTopic(), responseDto);
     }
 
     protected void addMembers(Long roomId, String... memberIds) {

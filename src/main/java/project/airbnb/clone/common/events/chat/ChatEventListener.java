@@ -26,7 +26,7 @@ public class ChatEventListener {
 
     @EventListener
     public void handleChatRequestRejectedEvent(ChatRequestRejectedEvent event) {
-        chatNotifyService.sendChatRequestRejectedNotification(event.requestId(), event.senderId());
+        chatNotifyService.sendChatRequestRejectedNotification(event.requestId(), event.senderId(), event.receiverName());
     }
 
     @TransactionalEventListener

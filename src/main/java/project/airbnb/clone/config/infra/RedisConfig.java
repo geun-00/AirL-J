@@ -25,6 +25,7 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import project.airbnb.clone.service.chat.RedisSubscriber;
+import project.airbnb.clone.service.notification.RedisNotificationSubscriber;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -87,15 +88,34 @@ public class RedisConfig {
 
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory,
-                                                                       MessageListenerAdapter listenerAdapter) {
+                                                                       MessageListenerAdapter chatListenerAdapter,
+                                                                       MessageListenerAdapter notificationListenerAdapter,
+                                                                       ChannelTopic chatTopic,
+                                                                       ChannelTopic notificationTopic) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(listenerAdapter, new ChannelTopic("chatTopic"));
+        container.addMessageListener(chatListenerAdapter, chatTopic);
+        container.addMessageListener(notificationListenerAdapter, notificationTopic);
         return container;
     }
 
     @Bean
-    public MessageListenerAdapter listenerAdapter(RedisSubscriber subscriber) {
+    public MessageListenerAdapter chatListenerAdapter(RedisSubscriber subscriber) {
         return new MessageListenerAdapter(subscriber, "sendMessage");
+    }
+
+    @Bean
+    public MessageListenerAdapter notificationListenerAdapter(RedisNotificationSubscriber subscriber) {
+        return new MessageListenerAdapter(subscriber, "handleNotification");
+    }
+
+    @Bean
+    public ChannelTopic chatTopic() {
+        return new ChannelTopic("chatTopic");
+    }
+
+    @Bean
+    public ChannelTopic notificationTopic() {
+        return new ChannelTopic("notificationTopic");
     }
 }
